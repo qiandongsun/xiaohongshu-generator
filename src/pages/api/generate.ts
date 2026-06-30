@@ -84,15 +84,28 @@ export default async function handler(
 标签：`;
     }
 
-    const response = await client.chat.completions.create({
-      model: process.env.MODEL_NAME || 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-    });
+    const modelNames = (process.env.MODEL_NAME || 'gpt-3.5-turbo')
+      .split(',')
+      .map((m) => m.trim())
+      .filter(Boolean);
 
-    const text = response.choices[0]?.message?.content || '';
+    let lastError = '';
+    for (const model of modelNames) {
+      try {
+        const response = await client.chat.completions.create({
+          model,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.7,
+        });
+        const text = response.choices[0]?.message?.content || '';
+        return res.status(200).json({ result: text });
+      } catch (err: any) {
+        console.error(`Model ${model} failed:`, err?.message);
+        lastError = err?.message || '未知错误';
+      }
+    }
 
-    res.status(200).json({ result: text });
+    res.status(500).json({ error: '生成失败', detail: lastError });
   } catch (error: any) {
     console.error('Generation error:', error);
     const message = error?.message || '未知错误';
