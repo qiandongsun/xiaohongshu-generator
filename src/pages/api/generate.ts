@@ -24,6 +24,10 @@ export default async function handler(
     return res.status(500).json({ error: '服务器未配置 ZZZ_API_KEY' });
   }
 
+  if (!process.env.MODEL_NAME) {
+    return res.status(500).json({ error: '服务器未配置 MODEL_NAME' });
+  }
+
   try {
     let prompt = '';
 
