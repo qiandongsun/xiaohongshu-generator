@@ -20,6 +20,10 @@ export default async function handler(
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
+  if (!process.env.ZZZ_API_KEY) {
+    return res.status(500).json({ error: '服务器未配置 ZZZ_API_KEY' });
+  }
+
   try {
     let prompt = '';
 
@@ -85,8 +89,9 @@ export default async function handler(
     const text = response.choices[0]?.message?.content || '';
 
     res.status(200).json({ result: text });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Generation error:', error);
-    res.status(500).json({ error: '生成失败，请稍后重试' });
+    const message = error?.message || '未知错误';
+    res.status(500).json({ error: '生成失败', detail: message });
   }
 }
