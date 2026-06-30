@@ -85,7 +85,7 @@ export default async function handler(
     }
 
     const response = await client.chat.completions.create({
-      model: process.env.MODEL_NAME || 'moonshot-v1-8k',
+      model: process.env.MODEL_NAME || 'gpt-3.5-turbo',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.7,
     });
